@@ -49,6 +49,7 @@ const sanitizeOrderedBase = (value) => {
 const state = {
     theme: cloneTheme(),
     isPreviewDirty: true,
+    isPaletteCollapsed: false,
 };
 
 const elements = {
@@ -75,6 +76,7 @@ const elements = {
     btnPreview: document.getElementById("btn-preview"),
     btnDownload: document.getElementById("btn-download"),
     btnReset: document.getElementById("btn-reset-theme"),
+    btnTogglePalette: document.getElementById("btn-toggle-palette"),
     toggleCustomBullets: document.getElementById("toggle-custom-bullets"),
     bulletEditor: document.querySelector('[data-role="bullet-editor"]'),
     bulletSequenceList: document.getElementById("bullet-sequence-list"),
@@ -94,6 +96,15 @@ const urls = {
 };
 
 const ensureValue = (value, fallback) => (value === undefined || value === null ? fallback : value);
+
+const applyPaletteCollapsedState = (collapsed) => {
+    state.isPaletteCollapsed = collapsed;
+    root.classList.toggle("workspace__layout--palette-collapsed", collapsed);
+    if (elements.btnTogglePalette) {
+        elements.btnTogglePalette.textContent = collapsed ? "팔레트 펼치기" : "팔레트 접기";
+        elements.btnTogglePalette.setAttribute("aria-pressed", collapsed ? "true" : "false");
+    }
+};
 
 function addBulletRow(value = "") {
     if (!elements.bulletSequenceList) return;
@@ -278,6 +289,7 @@ const setControlInitialValues = () => {
 };
 
 setControlInitialValues();
+applyPaletteCollapsedState(false);
 
 document.title = state.theme.title ?? "Markdown Styler";
 
@@ -404,7 +416,7 @@ const attachControlListeners = () => {
         elements.orderedListStyle,
         elements.pagePadding,
         elements.lineHeight,
-    elements.shadow,
+        elements.shadow,
         elements.customOrderedPrefix,
         elements.customOrderedSuffix,
     ].filter(Boolean);
@@ -467,6 +479,12 @@ const attachControlListeners = () => {
             setControlInitialValues();
             document.title = state.theme.title ?? "Markdown Styler";
             schedulePreview({ immediate: true });
+        });
+    }
+
+    if (elements.btnTogglePalette) {
+        elements.btnTogglePalette.addEventListener("click", () => {
+            applyPaletteCollapsedState(!state.isPaletteCollapsed);
         });
     }
 };
