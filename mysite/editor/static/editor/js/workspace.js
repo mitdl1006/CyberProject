@@ -18,8 +18,36 @@ const defaultTheme = (() => {
     }
 })();
 
+const cloneTheme = () => JSON.parse(JSON.stringify(defaultTheme || {}));
+
+const parseNumberOr = (value, fallback) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+const defaultBulletSequence = Array.isArray(defaultTheme.customBulletSequence)
+    ? [...defaultTheme.customBulletSequence]
+    : ["•", "◦", "▪"];
+
+const defaultOrderedDigits = Array.isArray(defaultTheme.customOrderedDigits)
+    ? [...defaultTheme.customOrderedDigits]
+    : ["0", "1", "2"];
+
+const DEFAULT_ORDERED_BASE = clamp(
+    Math.round(parseNumberOr(defaultTheme.customOrderedBase, defaultOrderedDigits.length || 3)),
+    2,
+    10,
+);
+
+const sanitizeOrderedBase = (value) => {
+    const parsed = Math.round(parseNumberOr(value, DEFAULT_ORDERED_BASE));
+    return clamp(Number.isNaN(parsed) ? DEFAULT_ORDERED_BASE : parsed, 2, 10);
+};
+
 const state = {
-    theme: { ...defaultTheme },
+    theme: cloneTheme(),
     isPreviewDirty: true,
 };
 
@@ -46,6 +74,17 @@ const elements = {
     previewStatus: document.getElementById("preview-status"),
     btnPreview: document.getElementById("btn-preview"),
     btnDownload: document.getElementById("btn-download"),
+    btnReset: document.getElementById("btn-reset-theme"),
+    toggleCustomBullets: document.getElementById("toggle-custom-bullets"),
+    bulletEditor: document.querySelector('[data-role="bullet-editor"]'),
+    bulletSequenceList: document.getElementById("bullet-sequence-list"),
+    btnAddBullet: document.getElementById("btn-add-bullet"),
+    toggleCustomOrdered: document.getElementById("toggle-custom-ordered"),
+    orderedEditor: document.querySelector('[data-role="ordered-editor"]'),
+    orderedSequenceList: document.getElementById("ordered-sequence-list"),
+    customOrderedBase: document.getElementById("number-ordered-base"),
+    customOrderedPrefix: document.getElementById("input-ordered-prefix"),
+    customOrderedSuffix: document.getElementById("input-ordered-suffix"),
     loadingTemplate: document.getElementById("loading-indicator"),
 };
 
@@ -55,6 +94,137 @@ const urls = {
 };
 
 const ensureValue = (value, fallback) => (value === undefined || value === null ? fallback : value);
+
+function addBulletRow(value = "") {
+    if (!elements.bulletSequenceList) return;
+    const row = document.createElement("div");
+    row.className = "sequence-editor__item";
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "아이콘";
+    input.value = value ?? "";
+    input.addEventListener("input", () => schedulePreview());
+    row.appendChild(input);
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "sequence-editor__remove";
+    remove.setAttribute("aria-label", "아이콘 삭제");
+    remove.textContent = "×";
+    remove.addEventListener("click", () => {
+        row.remove();
+        updateBulletRemoveButtons();
+        schedulePreview({ immediate: true });
+    });
+    row.appendChild(remove);
+
+    elements.bulletSequenceList.appendChild(row);
+}
+
+function updateBulletRemoveButtons() {
+    if (!elements.bulletSequenceList) return;
+    const rows = elements.bulletSequenceList.querySelectorAll(".sequence-editor__item");
+    rows.forEach((row) => {
+        const remove = row.querySelector(".sequence-editor__remove");
+        if (remove) {
+            remove.disabled = rows.length <= 1;
+        }
+    });
+}
+
+function renderBulletSequence(values = []) {
+    if (!elements.bulletSequenceList) return;
+    const effective = Array.isArray(values) && values.length ? [...values] : [...defaultBulletSequence];
+    elements.bulletSequenceList.innerHTML = "";
+    if (!effective.length) {
+        effective.push("");
+    }
+    effective.forEach((value) => addBulletRow(value));
+    updateBulletRemoveButtons();
+}
+
+function readBulletSequence() {
+    if (!elements.bulletSequenceList) return [];
+    return Array.from(elements.bulletSequenceList.querySelectorAll("input[type='text']"))
+        .map((input) => input.value.trim())
+        .filter((value) => value.length > 0);
+}
+
+function setBulletEditorDisabled(disabled) {
+    if (elements.bulletEditor) {
+        elements.bulletEditor.setAttribute("aria-disabled", disabled ? "true" : "false");
+    }
+    if (elements.btnAddBullet) {
+        elements.btnAddBullet.disabled = disabled;
+    }
+    const inputs = elements.bulletSequenceList?.querySelectorAll("input[type='text']") ?? [];
+    inputs.forEach((input) => {
+        input.disabled = disabled;
+    });
+    const removers = elements.bulletSequenceList?.querySelectorAll(".sequence-editor__remove") ?? [];
+    removers.forEach((btn) => {
+        btn.disabled = disabled;
+    });
+}
+
+function renderOrderedSequence(baseValue, values = []) {
+    if (!elements.orderedSequenceList) return;
+    const targetBase = sanitizeOrderedBase(baseValue);
+    elements.orderedSequenceList.innerHTML = "";
+    for (let i = 0; i < targetBase; i += 1) {
+        const row = document.createElement("div");
+        row.className = "sequence-editor__item";
+
+        const indexLabel = document.createElement("span");
+        indexLabel.className = "sequence-editor__index";
+        indexLabel.textContent = String(i);
+        row.appendChild(indexLabel);
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = defaultOrderedDigits[i] ?? String(i);
+        input.value = (values[i] ?? defaultOrderedDigits[i] ?? "");
+        input.addEventListener("input", () => schedulePreview());
+        row.appendChild(input);
+
+        elements.orderedSequenceList.appendChild(row);
+    }
+}
+
+function readOrderedSequence() {
+    if (!elements.orderedSequenceList) return [];
+    return Array.from(elements.orderedSequenceList.querySelectorAll("input[type='text']"))
+        .map((input) => input.value.trim());
+}
+
+function ensureOrderedDigits(values, base) {
+    const digits = [];
+    for (let i = 0; i < base; i += 1) {
+        const candidate = (values[i] ?? "").trim();
+        if (candidate) {
+            digits.push(candidate);
+        } else if (defaultOrderedDigits[i]) {
+            digits.push(defaultOrderedDigits[i]);
+        } else {
+            digits.push(String(i));
+        }
+    }
+    return digits;
+}
+
+function setOrderedEditorDisabled(disabled) {
+    if (elements.orderedEditor) {
+        elements.orderedEditor.setAttribute("aria-disabled", disabled ? "true" : "false");
+    }
+    if (elements.customOrderedBase) elements.customOrderedBase.disabled = disabled;
+    if (elements.customOrderedPrefix) elements.customOrderedPrefix.disabled = disabled;
+    if (elements.customOrderedSuffix) elements.customOrderedSuffix.disabled = disabled;
+    const inputs = elements.orderedSequenceList?.querySelectorAll("input[type='text']") ?? [];
+    inputs.forEach((input) => {
+        input.disabled = disabled;
+    });
+}
 
 const setControlInitialValues = () => {
     const theme = state.theme;
@@ -77,31 +247,88 @@ const setControlInitialValues = () => {
     }
     if (elements.lineHeight) elements.lineHeight.value = ensureValue(theme.lineHeight, 1.7);
     if (elements.shadow && theme.cardShadow) elements.shadow.value = theme.cardShadow;
+    const bulletValues = Array.isArray(theme.customBulletSequence) ? theme.customBulletSequence : [];
+    renderBulletSequence(bulletValues);
+    if (elements.toggleCustomBullets) {
+        elements.toggleCustomBullets.checked = !!theme.useCustomBullets && bulletValues.length > 0;
+    }
+
+    const baseValue = sanitizeOrderedBase(theme.customOrderedBase);
+    if (elements.customOrderedBase) {
+        elements.customOrderedBase.value = baseValue;
+    }
+    const orderedValues = Array.isArray(theme.customOrderedDigits) ? theme.customOrderedDigits : [];
+    renderOrderedSequence(baseValue, orderedValues);
+    if (elements.toggleCustomOrdered) elements.toggleCustomOrdered.checked = !!theme.useCustomOrdered;
+
+    if (elements.customOrderedPrefix) {
+        elements.customOrderedPrefix.value = ensureValue(
+            theme.orderedMarkerPrefix,
+            defaultTheme.orderedMarkerPrefix ?? ""
+        );
+    }
+    if (elements.customOrderedSuffix) {
+        elements.customOrderedSuffix.value = ensureValue(
+            theme.orderedMarkerSuffix,
+            defaultTheme.orderedMarkerSuffix ?? "."
+        );
+    }
+
+    updateCustomControlsState();
 };
 
 setControlInitialValues();
 
 document.title = state.theme.title ?? "Markdown Styler";
 
-const gatherTheme = () => ({
-    title: elements.title?.value?.trim() || "Untitled",
-    fontFamily: elements.font?.value || defaultTheme.fontFamily,
-    baseFontSize: Number(elements.fontSize?.value) || defaultTheme.baseFontSize,
-    backgroundColor: elements.background?.value || defaultTheme.backgroundColor,
-    textColor: elements.textColor?.value || defaultTheme.textColor,
-    headingColor: elements.headingColor?.value || defaultTheme.headingColor,
-    accentColor: elements.accentColor?.value || defaultTheme.accentColor,
-    blockquoteBackground: elements.blockquoteBg?.value || defaultTheme.blockquoteBackground,
-    blockquoteBorderColor: elements.blockquoteBorder?.value || defaultTheme.blockquoteBorderColor,
-    blockquoteTextColor: defaultTheme.blockquoteTextColor,
-    codeBackground: elements.codeBg?.value || defaultTheme.codeBackground,
-    codeTextColor: elements.codeText?.value || defaultTheme.codeTextColor,
-    listStyle: elements.listStyle?.value || defaultTheme.listStyle,
-    orderedListStyle: elements.orderedListStyle?.value || defaultTheme.orderedListStyle,
-    pagePadding: `${Number(elements.pagePadding?.value) || 48}px`,
-    lineHeight: Number(elements.lineHeight?.value) || defaultTheme.lineHeight,
-    cardShadow: elements.shadow?.value || defaultTheme.cardShadow,
-});
+function updateCustomControlsState() {
+    const bulletsEnabled = elements.toggleCustomBullets?.checked ?? false;
+    setBulletEditorDisabled(!bulletsEnabled);
+    updateBulletRemoveButtons();
+
+    const orderedEnabled = elements.toggleCustomOrdered?.checked ?? false;
+    setOrderedEditorDisabled(!orderedEnabled);
+}
+
+const gatherTheme = () => {
+    const bulletSequence = readBulletSequence();
+    const orderedBase = sanitizeOrderedBase(elements.customOrderedBase?.value);
+    if (elements.customOrderedBase) {
+        elements.customOrderedBase.value = orderedBase;
+    }
+    const orderedDigitsRaw = readOrderedSequence();
+    const orderedDigits = ensureOrderedDigits(orderedDigitsRaw, orderedBase);
+
+    const useCustomBullets = (elements.toggleCustomBullets?.checked ?? false) && bulletSequence.length > 0;
+    const useCustomOrdered = elements.toggleCustomOrdered?.checked ?? false;
+
+    return {
+        title: elements.title?.value?.trim() || "Untitled",
+        fontFamily: elements.font?.value || defaultTheme.fontFamily,
+        baseFontSize: Number(elements.fontSize?.value) || defaultTheme.baseFontSize,
+        backgroundColor: elements.background?.value || defaultTheme.backgroundColor,
+        textColor: elements.textColor?.value || defaultTheme.textColor,
+        headingColor: elements.headingColor?.value || defaultTheme.headingColor,
+        accentColor: elements.accentColor?.value || defaultTheme.accentColor,
+        blockquoteBackground: elements.blockquoteBg?.value || defaultTheme.blockquoteBackground,
+        blockquoteBorderColor: elements.blockquoteBorder?.value || defaultTheme.blockquoteBorderColor,
+        blockquoteTextColor: defaultTheme.blockquoteTextColor,
+        codeBackground: elements.codeBg?.value || defaultTheme.codeBackground,
+        codeTextColor: elements.codeText?.value || defaultTheme.codeTextColor,
+        listStyle: elements.listStyle?.value || defaultTheme.listStyle,
+        orderedListStyle: elements.orderedListStyle?.value || defaultTheme.orderedListStyle,
+        pagePadding: `${Number(elements.pagePadding?.value) || 48}px`,
+        lineHeight: Number(elements.lineHeight?.value) || defaultTheme.lineHeight,
+        cardShadow: elements.shadow?.value || defaultTheme.cardShadow,
+        useCustomBullets,
+        customBulletSequence: bulletSequence,
+        useCustomOrdered,
+        customOrderedDigits: orderedDigits,
+        customOrderedBase: orderedDigits.length,
+        orderedMarkerPrefix: elements.customOrderedPrefix?.value?.trim() ?? defaultTheme.orderedMarkerPrefix ?? "",
+        orderedMarkerSuffix: elements.customOrderedSuffix?.value?.trim() ?? defaultTheme.orderedMarkerSuffix ?? ".",
+    };
+};
 
 const updateStatus = (text, variant = "idle") => {
     if (!elements.previewStatus) return;
@@ -177,11 +404,53 @@ const attachControlListeners = () => {
         elements.orderedListStyle,
         elements.pagePadding,
         elements.lineHeight,
-        elements.shadow,
+    elements.shadow,
+        elements.customOrderedPrefix,
+        elements.customOrderedSuffix,
     ].filter(Boolean);
 
     for (const input of inputs) {
         input.addEventListener("input", () => schedulePreview());
+    }
+
+    if (elements.toggleCustomBullets) {
+        elements.toggleCustomBullets.addEventListener("change", () => {
+            updateCustomControlsState();
+            schedulePreview();
+        });
+    }
+
+    if (elements.toggleCustomOrdered) {
+        elements.toggleCustomOrdered.addEventListener("change", () => {
+            updateCustomControlsState();
+            schedulePreview();
+        });
+    }
+
+    if (elements.customOrderedBase) {
+        elements.customOrderedBase.addEventListener("change", () => {
+            const currentValues = readOrderedSequence();
+            const nextBase = sanitizeOrderedBase(elements.customOrderedBase.value);
+            elements.customOrderedBase.value = nextBase;
+            renderOrderedSequence(nextBase, currentValues);
+            updateCustomControlsState();
+            schedulePreview({ immediate: true });
+        });
+        elements.customOrderedBase.addEventListener("input", () => {
+            const currentValues = readOrderedSequence();
+            const nextBase = sanitizeOrderedBase(elements.customOrderedBase.value);
+            renderOrderedSequence(nextBase, currentValues);
+            updateCustomControlsState();
+            schedulePreview();
+        });
+    }
+
+    if (elements.btnAddBullet) {
+        elements.btnAddBullet.addEventListener("click", () => {
+            addBulletRow("");
+            updateBulletRemoveButtons();
+            schedulePreview({ immediate: true });
+        });
     }
 
     if (elements.markdown) {
@@ -190,6 +459,15 @@ const attachControlListeners = () => {
 
     if (elements.btnPreview) {
         elements.btnPreview.addEventListener("click", () => schedulePreview({ immediate: true }));
+    }
+
+    if (elements.btnReset) {
+        elements.btnReset.addEventListener("click", () => {
+            state.theme = cloneTheme();
+            setControlInitialValues();
+            document.title = state.theme.title ?? "Markdown Styler";
+            schedulePreview({ immediate: true });
+        });
     }
 };
 

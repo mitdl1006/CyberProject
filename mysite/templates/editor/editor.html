@@ -52,6 +52,7 @@
                     <span>본문 글자 크기</span>
                     <input type="range" id="range-font-size" min="12" max="22" step="1" />
                 </label>
+                <button type="button" class="btn btn--ghost palette__reset" id="btn-reset-theme">설정 초기화</button>
             </div>
 
             <div class="palette__section">
@@ -110,6 +111,41 @@
                         <option value="leading-zero">01, 02, 03</option>
                     </select>
                 </label>
+                <div class="palette__field palette__toggle">
+                    <label class="toggle">
+                        <input type="checkbox" id="toggle-custom-bullets" />
+                        <span>커스텀 글머리 기호 사용</span>
+                    </label>
+                    <div class="sequence-editor" data-role="bullet-editor">
+                        <div class="sequence-editor__list" id="bullet-sequence-list"></div>
+                        <button type="button" class="btn btn--ghost btn--xs" id="btn-add-bullet">아이콘 추가</button>
+                    </div>
+                    <p class="field-help">아이콘 칸을 추가/삭제하며 원하는 순서를 구성하세요. 중첩 목록은 같은 순서로 반복됩니다.</p>
+                </div>
+                <div class="palette__field palette__toggle">
+                    <label class="toggle">
+                        <input type="checkbox" id="toggle-custom-ordered" />
+                        <span>커스텀 번호 스타일 사용</span>
+                    </label>
+                    <div class="toggle__row">
+                        <label>
+                            <span>진법 (2~10)</span>
+                            <input type="number" id="number-ordered-base" min="2" max="10" step="1" />
+                        </label>
+                        <label>
+                            <span>접두사</span>
+                            <input type="text" id="input-ordered-prefix" placeholder="" />
+                        </label>
+                        <label>
+                            <span>접미사</span>
+                            <input type="text" id="input-ordered-suffix" placeholder="." />
+                        </label>
+                    </div>
+                    <div class="sequence-editor" data-role="ordered-editor">
+                        <div class="sequence-editor__list" id="ordered-sequence-list"></div>
+                    </div>
+                    <p class="field-help">진법 값과 동일한 개수의 칸이 자동 생성됩니다. 각 칸은 낮은 숫자부터 높은 숫자 순서를 의미합니다.</p>
+                </div>
             </div>
 
             <div class="palette__section">
