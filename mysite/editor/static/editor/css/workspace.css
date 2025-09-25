@@ -132,15 +132,18 @@ body.workspace {
     grid-template-columns: 56px minmax(0, 1fr) minmax(0, 1fr);
 }
 
-.workspace__layout--palette-collapsed .palette-slot {
-    justify-content: flex-end;
-}
-
 .palette-slot {
     position: relative;
     display: flex;
     align-items: stretch;
     min-width: 0;
+    transition: width var(--transition), padding var(--transition);
+}
+
+.palette-slot--collapsed {
+    width: 56px;
+    justify-content: flex-end;
+    padding: 0;
 }
 
 .palette {

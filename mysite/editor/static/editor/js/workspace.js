@@ -77,6 +77,7 @@ const elements = {
     btnDownload: document.getElementById("btn-download"),
     btnReset: document.getElementById("btn-reset-theme"),
     btnTogglePalette: document.getElementById("btn-toggle-palette"),
+    paletteSlot: document.querySelector(".palette-slot"),
     toggleCustomBullets: document.getElementById("toggle-custom-bullets"),
     bulletEditor: document.querySelector('[data-role="bullet-editor"]'),
     bulletSequenceList: document.getElementById("bullet-sequence-list"),
@@ -100,6 +101,7 @@ const ensureValue = (value, fallback) => (value === undefined || value === null 
 const applyPaletteCollapsedState = (collapsed) => {
     state.isPaletteCollapsed = collapsed;
     root.classList.toggle("workspace__layout--palette-collapsed", collapsed);
+    elements.paletteSlot?.classList.toggle("palette-slot--collapsed", collapsed);
     if (elements.btnTogglePalette) {
         elements.btnTogglePalette.textContent = collapsed ? "▶" : "◀";
         elements.btnTogglePalette.setAttribute("aria-pressed", collapsed ? "true" : "false");
