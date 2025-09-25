@@ -101,8 +101,9 @@ const applyPaletteCollapsedState = (collapsed) => {
     state.isPaletteCollapsed = collapsed;
     root.classList.toggle("workspace__layout--palette-collapsed", collapsed);
     if (elements.btnTogglePalette) {
-        elements.btnTogglePalette.textContent = collapsed ? "팔레트 펼치기" : "팔레트 접기";
+        elements.btnTogglePalette.textContent = collapsed ? "▶" : "◀";
         elements.btnTogglePalette.setAttribute("aria-pressed", collapsed ? "true" : "false");
+        elements.btnTogglePalette.setAttribute("aria-label", collapsed ? "팔레트 펼치기" : "팔레트 접기");
     }
 };
 

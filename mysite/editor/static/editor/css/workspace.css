@@ -129,17 +129,25 @@ body.workspace {
 }
 
 .workspace__layout--palette-collapsed {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 56px minmax(0, 1fr) minmax(0, 1fr);
 }
 
-.workspace__layout--palette-collapsed .palette {
-    display: none;
+.workspace__layout--palette-collapsed .palette-slot {
+    justify-content: flex-end;
+}
+
+.palette-slot {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    min-width: 0;
 }
 
 .palette {
     display: flex;
     flex-direction: column;
     gap: 22px;
+    flex: 1 1 0;
     background: rgba(255, 255, 255, 0.86);
     border-radius: var(--radius-lg);
     padding: 24px;
@@ -148,6 +156,48 @@ body.workspace {
     backdrop-filter: blur(24px);
     max-height: calc(100vh - 140px);
     overflow-y: auto;
+    transition: opacity var(--transition), transform var(--transition), box-shadow var(--transition), padding var(--transition), margin var(--transition), border-color var(--transition);
+}
+
+.palette__collapse {
+    position: absolute;
+    top: 50%;
+    right: -18px;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 64px;
+    border: none;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: rgba(148, 163, 184, 0.35);
+    color: #1e293b;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    box-shadow: 0 20px 40px -32px rgba(15, 23, 42, 0.45);
+    transition: background var(--transition), color var(--transition), transform var(--transition);
+    z-index: 2;
+}
+
+.palette__collapse:hover {
+    background: rgba(37, 99, 235, 0.2);
+    color: #1d4ed8;
+}
+
+.workspace__layout--palette-collapsed .palette {
+    opacity: 0;
+    transform: translateX(-40px);
+    pointer-events: none;
+    padding: 0;
+    margin: 0;
+    border-color: transparent;
+    box-shadow: none;
+    flex: 0 0 0;
+    width: 0;
+}
+
+.workspace__layout--palette-collapsed .palette__collapse {
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
 }
 
 .palette__reset {
@@ -197,21 +247,23 @@ body.workspace {
 }
 
 .sequence-editor__item {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
     background: rgba(248, 250, 252, 0.8);
     border: 1px solid rgba(148, 163, 184, 0.3);
     border-radius: var(--radius-sm);
     padding: 8px 10px;
-    width: auto;
-    min-width: 0;
     align-self: flex-start;
+    width: max-content;
+    max-width: 100%;
 }
 
 .sequence-editor__item input[type="text"] {
-    flex: 0 0 clamp(80px, 60%, 160px);
-    width: clamp(80px, 60%, 160px);
+    flex: 0 1 110px;
+    width: 110px;
+    min-width: 72px;
+    max-width: 140px;
     border: none;
     background: transparent;
     font-size: 14px;

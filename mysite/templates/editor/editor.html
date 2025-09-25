@@ -20,7 +20,6 @@
             </div>
         </div>
         <div class="topbar__actions">
-            <button id="btn-toggle-palette" class="btn btn--ghost" type="button" aria-pressed="false">팔레트 접기</button>
             <button id="btn-preview" class="btn btn--ghost" type="button">미리보기 새로고침</button>
             <button id="btn-download" class="btn btn--primary" type="button">PDF 다운로드</button>
         </div>
@@ -32,144 +31,147 @@
         data-preview-url="{% url 'editor:preview' %}"
         data-pdf-url="{% url 'editor:pdf' %}"
     >
-        <aside class="palette" aria-label="디자인 팔레트">
-            <div class="palette__section">
-                <h2>문서</h2>
-                <label class="palette__field">
-                    <span>문서 제목</span>
-                    <input type="text" id="input-title" placeholder="Untitled" />
-                </label>
-                <label class="palette__field">
-                    <span>본문 폰트</span>
-                    <select id="select-font">
-                        <option value="'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Noto Sans KR</option>
-                        <option value="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Pretendard</option>
-                        <option value="'SUIT', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">SUIT</option>
-                        <option value="'IBM Plex Sans KR', sans-serif">IBM Plex Sans KR</option>
-                        <option value="'Fira Code', monospace">Fira Code</option>
-                    </select>
-                </label>
-                <label class="palette__field">
-                    <span>본문 글자 크기</span>
-                    <input type="range" id="range-font-size" min="12" max="22" step="1" />
-                </label>
-                <button type="button" class="btn btn--ghost palette__reset" id="btn-reset-theme">설정 초기화</button>
-            </div>
-
-            <div class="palette__section">
-                <h2>색상</h2>
-                <label class="palette__field">
-                    <span>배경</span>
-                    <input type="color" id="color-background" />
-                </label>
-                <label class="palette__field">
-                    <span>본문</span>
-                    <input type="color" id="color-text" />
-                </label>
-                <label class="palette__field">
-                    <span>헤딩</span>
-                    <input type="color" id="color-heading" />
-                </label>
-                <label class="palette__field">
-                    <span>포인트</span>
-                    <input type="color" id="color-accent" />
-                </label>
-                <label class="palette__field">
-                    <span>인용문 배경</span>
-                    <input type="color" id="color-blockquote-bg" />
-                </label>
-                <label class="palette__field">
-                    <span>인용문 테두리</span>
-                    <input type="color" id="color-blockquote-border" />
-                </label>
-                <label class="palette__field">
-                    <span>코드 배경</span>
-                    <input type="color" id="color-code-bg" />
-                </label>
-                <label class="palette__field">
-                    <span>코드 텍스트</span>
-                    <input type="color" id="color-code-text" />
-                </label>
-            </div>
-
-            <div class="palette__section">
-                <h2>목록 스타일</h2>
-                <label class="palette__field">
-                    <span>글머리 기호</span>
-                    <select id="select-list">
-                        <option value="disc">● 기본 (disc)</option>
-                        <option value="circle">○ circle</option>
-                        <option value="square">■ square</option>
-                        <option value="none">없음</option>
-                    </select>
-                </label>
-                <label class="palette__field">
-                    <span>번호 목록</span>
-                    <select id="select-olist">
-                        <option value="decimal">1, 2, 3</option>
-                        <option value="upper-roman">Ⅰ, Ⅱ, Ⅲ</option>
-                        <option value="lower-alpha">a, b, c</option>
-                        <option value="leading-zero">01, 02, 03</option>
-                    </select>
-                </label>
-                <div class="palette__field palette__toggle">
-                    <label class="toggle">
-                        <input type="checkbox" id="toggle-custom-bullets" />
-                        <span>커스텀 글머리 기호 사용</span>
+        <div class="palette-slot">
+            <aside class="palette" aria-label="디자인 팔레트">
+                <div class="palette__section">
+                    <h2>문서</h2>
+                    <label class="palette__field">
+                        <span>문서 제목</span>
+                        <input type="text" id="input-title" placeholder="Untitled" />
                     </label>
-                    <div class="sequence-editor" data-role="bullet-editor">
-                        <div class="sequence-editor__list" id="bullet-sequence-list"></div>
-                        <button type="button" class="btn btn--ghost btn--xs" id="btn-add-bullet">아이콘 추가</button>
-                    </div>
-                    <p class="field-help">아이콘 칸을 추가/삭제하며 원하는 순서를 구성하세요. 중첩 목록은 같은 순서로 반복됩니다.</p>
-                </div>
-                <div class="palette__field palette__toggle">
-                    <label class="toggle">
-                        <input type="checkbox" id="toggle-custom-ordered" />
-                        <span>커스텀 번호 스타일 사용</span>
+                    <label class="palette__field">
+                        <span>본문 폰트</span>
+                        <select id="select-font">
+                            <option value="'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Noto Sans KR</option>
+                            <option value="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Pretendard</option>
+                            <option value="'SUIT', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">SUIT</option>
+                            <option value="'IBM Plex Sans KR', sans-serif">IBM Plex Sans KR</option>
+                            <option value="'Fira Code', monospace">Fira Code</option>
+                        </select>
                     </label>
-                    <div class="toggle__row">
-                        <label>
-                            <span>진법 (2~10)</span>
-                            <input type="number" id="number-ordered-base" min="2" max="10" step="1" />
-                        </label>
-                        <label>
-                            <span>접두사</span>
-                            <input type="text" id="input-ordered-prefix" placeholder="" />
-                        </label>
-                        <label>
-                            <span>접미사</span>
-                            <input type="text" id="input-ordered-suffix" placeholder="." />
-                        </label>
-                    </div>
-                    <div class="sequence-editor" data-role="ordered-editor">
-                        <div class="sequence-editor__list" id="ordered-sequence-list"></div>
-                    </div>
-                    <p class="field-help">진법 값과 동일한 개수의 칸이 자동 생성됩니다. 각 칸은 낮은 숫자부터 높은 숫자 순서를 의미합니다.</p>
+                    <label class="palette__field">
+                        <span>본문 글자 크기</span>
+                        <input type="range" id="range-font-size" min="12" max="22" step="1" />
+                    </label>
+                    <button type="button" class="btn btn--ghost palette__reset" id="btn-reset-theme">설정 초기화</button>
                 </div>
-            </div>
 
-            <div class="palette__section">
-                <h2>레이아웃</h2>
-                <label class="palette__field">
-                    <span>페이지 여백 (px)</span>
-                    <input type="number" id="number-padding" min="16" max="120" step="4" />
-                </label>
-                <label class="palette__field">
-                    <span>줄 간격</span>
-                    <input type="number" id="number-line-height" min="1.2" max="2.2" step="0.1" />
-                </label>
-                <label class="palette__field">
-                    <span>카드 그림자</span>
-                    <select id="select-shadow">
-                        <option value="0 30px 60px -30px rgba(37, 99, 235, 0.45)">부드러운 Glow</option>
-                        <option value="0 20px 45px -24px rgba(15, 23, 42, 0.32)">딥 쉐도우</option>
-                        <option value="0 18px 30px -18px rgba(15, 118, 110, 0.28)">틸 링</option>
-                        <option value="none">쉐도우 없음</option>
-                    </select>
-                </label>
-            </div>
-        </aside>
+                <div class="palette__section">
+                    <h2>색상</h2>
+                    <label class="palette__field">
+                        <span>배경</span>
+                        <input type="color" id="color-background" />
+                    </label>
+                    <label class="palette__field">
+                        <span>본문</span>
+                        <input type="color" id="color-text" />
+                    </label>
+                    <label class="palette__field">
+                        <span>헤딩</span>
+                        <input type="color" id="color-heading" />
+                    </label>
+                    <label class="palette__field">
+                        <span>포인트</span>
+                        <input type="color" id="color-accent" />
+                    </label>
+                    <label class="palette__field">
+                        <span>인용문 배경</span>
+                        <input type="color" id="color-blockquote-bg" />
+                    </label>
+                    <label class="palette__field">
+                        <span>인용문 테두리</span>
+                        <input type="color" id="color-blockquote-border" />
+                    </label>
+                    <label class="palette__field">
+                        <span>코드 배경</span>
+                        <input type="color" id="color-code-bg" />
+                    </label>
+                    <label class="palette__field">
+                        <span>코드 텍스트</span>
+                        <input type="color" id="color-code-text" />
+                    </label>
+                </div>
+
+                <div class="palette__section">
+                    <h2>목록 스타일</h2>
+                    <label class="palette__field">
+                        <span>글머리 기호</span>
+                        <select id="select-list">
+                            <option value="disc">● 기본 (disc)</option>
+                            <option value="circle">○ circle</option>
+                            <option value="square">■ square</option>
+                            <option value="none">없음</option>
+                        </select>
+                    </label>
+                    <label class="palette__field">
+                        <span>번호 목록</span>
+                        <select id="select-olist">
+                            <option value="decimal">1, 2, 3</option>
+                            <option value="upper-roman">Ⅰ, Ⅱ, Ⅲ</option>
+                            <option value="lower-alpha">a, b, c</option>
+                            <option value="leading-zero">01, 02, 03</option>
+                        </select>
+                    </label>
+                    <div class="palette__field palette__toggle">
+                        <label class="toggle">
+                            <input type="checkbox" id="toggle-custom-bullets" />
+                            <span>커스텀 글머리 기호 사용</span>
+                        </label>
+                        <div class="sequence-editor" data-role="bullet-editor">
+                            <div class="sequence-editor__list" id="bullet-sequence-list"></div>
+                            <button type="button" class="btn btn--ghost btn--xs" id="btn-add-bullet">아이콘 추가</button>
+                        </div>
+                        <p class="field-help">아이콘 칸을 추가/삭제하며 원하는 순서를 구성하세요. 중첩 목록은 같은 순서로 반복됩니다.</p>
+                    </div>
+                    <div class="palette__field palette__toggle">
+                        <label class="toggle">
+                            <input type="checkbox" id="toggle-custom-ordered" />
+                            <span>커스텀 번호 스타일 사용</span>
+                        </label>
+                        <div class="toggle__row">
+                            <label>
+                                <span>진법 (2~10)</span>
+                                <input type="number" id="number-ordered-base" min="2" max="10" step="1" />
+                            </label>
+                            <label>
+                                <span>접두사</span>
+                                <input type="text" id="input-ordered-prefix" placeholder="" />
+                            </label>
+                            <label>
+                                <span>접미사</span>
+                                <input type="text" id="input-ordered-suffix" placeholder="." />
+                            </label>
+                        </div>
+                        <div class="sequence-editor" data-role="ordered-editor">
+                            <div class="sequence-editor__list" id="ordered-sequence-list"></div>
+                        </div>
+                        <p class="field-help">진법 값과 동일한 개수의 칸이 자동 생성됩니다. 각 칸은 낮은 숫자부터 높은 숫자 순서를 의미합니다.</p>
+                    </div>
+                </div>
+
+                <div class="palette__section">
+                    <h2>레이아웃</h2>
+                    <label class="palette__field">
+                        <span>페이지 여백 (px)</span>
+                        <input type="number" id="number-padding" min="16" max="120" step="4" />
+                    </label>
+                    <label class="palette__field">
+                        <span>줄 간격</span>
+                        <input type="number" id="number-line-height" min="1.2" max="2.2" step="0.1" />
+                    </label>
+                    <label class="palette__field">
+                        <span>카드 그림자</span>
+                        <select id="select-shadow">
+                            <option value="0 30px 60px -30px rgba(37, 99, 235, 0.45)">부드러운 Glow</option>
+                            <option value="0 20px 45px -24px rgba(15, 23, 42, 0.32)">딥 쉐도우</option>
+                            <option value="0 18px 30px -18px rgba(15, 118, 110, 0.28)">틸 링</option>
+                            <option value="none">쉐도우 없음</option>
+                        </select>
+                    </label>
+                </div>
+            </aside>
+            <button type="button" class="palette__collapse" id="btn-toggle-palette" aria-label="팔레트 접기" aria-pressed="false">◀</button>
+        </div>
 
         <section class="editor" aria-label="마크다운 편집">
             <div class="editor__header">
