@@ -311,6 +311,7 @@ def build_theme_css(theme: dict[str, Any]) -> str:
             border-radius: 20px;
             border: 1px solid rgba(15, 23, 42, 0.08);
             font-family: {theme["fontFamily"]};
+            box-sizing: border-box;
         }}
         .document h1,
         .document h2,
@@ -417,6 +418,9 @@ def build_theme_css(theme: dict[str, Any]) -> str:
                     top: 0.1em;
                     font-weight: 600;
                     color: {theme["accentColor"]};
+                    font-family: {theme["fontFamily"]};
+                    font-size: 1em;
+                    line-height: 1.2;
                 }}
                 """
             )
@@ -445,6 +449,12 @@ def build_theme_css(theme: dict[str, Any]) -> str:
                     top: 0.05em;
                     font-weight: 700;
                     color: {theme["accentColor"]};
+                    font-family: {theme["fontFamily"]};
+                    font-size: 1em;
+                    line-height: 1.2;
+                    min-width: 2em;
+                    text-align: right;
+                    display: inline-block;
                 }}
                 """
             )
