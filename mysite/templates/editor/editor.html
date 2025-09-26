@@ -83,13 +83,10 @@
                         <input type="color" id="color-blockquote-border" />
                     </label>
                     <label class="palette__field">
-                        <span>인용문 모서리</span>
-                        <select id="select-blockquote-radius">
-                            <option value="8px">각진 (8px)</option>
-                            <option value="14px">라운드 (14px)</option>
-                            <option value="24px">둥근 (24px)</option>
-                        </select>
+                        <span>인용문 모서리 (px)</span>
+                        <input type="number" id="input-blockquote-radius" min="0" max="64" step="1" />
                     </label>
+                    <p class="field-help">0으로 설정하면 각진 모서리, 값이 클수록 둥글게 표현됩니다.</p>
                     <label class="palette__field">
                         <span>코드 배경</span>
                         <input type="color" id="color-code-bg" />

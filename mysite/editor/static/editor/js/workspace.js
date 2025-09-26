@@ -62,7 +62,7 @@ const elements = {
     accentColor: document.getElementById("color-accent"),
     blockquoteBg: document.getElementById("color-blockquote-bg"),
     blockquoteBorder: document.getElementById("color-blockquote-border"),
-    blockquoteRadius: document.getElementById("select-blockquote-radius"),
+    blockquoteRadius: document.getElementById("input-blockquote-radius"),
     codeBg: document.getElementById("color-code-bg"),
     codeText: document.getElementById("color-code-text"),
     listStyle: document.getElementById("select-list"),
@@ -254,8 +254,8 @@ const setControlInitialValues = () => {
     if (elements.blockquoteBorder) elements.blockquoteBorder.value = ensureValue(theme.blockquoteBorderColor, "#2563eb");
     if (elements.blockquoteRadius) {
         const radiusValue = ensureValue(theme.blockquoteBorderRadius, defaultTheme.blockquoteBorderRadius ?? "14px");
-        const normalized = `${radiusValue}`.endsWith("px") ? `${radiusValue}` : `${radiusValue}px`;
-        elements.blockquoteRadius.value = normalized;
+        const numeric = parseInt(String(radiusValue).replace(/px/i, ""), 10);
+        elements.blockquoteRadius.value = Number.isFinite(numeric) ? numeric : 14;
     }
     if (elements.codeBg) elements.codeBg.value = ensureValue(theme.codeBackground, "#0f172a");
     if (elements.codeText) elements.codeText.value = ensureValue(theme.codeTextColor, "#facc15");
@@ -333,7 +333,13 @@ const gatherTheme = () => {
         accentColor: elements.accentColor?.value || defaultTheme.accentColor,
         blockquoteBackground: elements.blockquoteBg?.value || defaultTheme.blockquoteBackground,
         blockquoteBorderColor: elements.blockquoteBorder?.value || defaultTheme.blockquoteBorderColor,
-    blockquoteBorderRadius: elements.blockquoteRadius?.value || defaultTheme.blockquoteBorderRadius || "14px",
+        blockquoteBorderRadius: (() => {
+            const raw = Number(elements.blockquoteRadius?.value);
+            if (Number.isFinite(raw) && raw >= 0) {
+                return `${raw}px`;
+            }
+            return defaultTheme.blockquoteBorderRadius || "14px";
+        })(),
         blockquoteTextColor: defaultTheme.blockquoteTextColor,
         codeBackground: elements.codeBg?.value || defaultTheme.codeBackground,
         codeTextColor: elements.codeText?.value || defaultTheme.codeTextColor,
