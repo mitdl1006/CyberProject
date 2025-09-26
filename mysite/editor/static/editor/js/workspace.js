@@ -27,6 +27,12 @@ const parseNumberOr = (value, fallback) => {
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
+const parseRadiusValue = (value, fallback) => {
+    if (value === undefined || value === null) return fallback;
+    const numeric = parseInt(String(value).replace(/[^0-9.-]/g, ""), 10);
+    return Number.isFinite(numeric) ? numeric : fallback;
+};
+
 const defaultBulletSequence = Array.isArray(defaultTheme.customBulletSequence)
     ? [...defaultTheme.customBulletSequence]
     : ["•", "◦", "▪"];
@@ -45,6 +51,11 @@ const sanitizeOrderedBase = (value) => {
     const parsed = Math.round(parseNumberOr(value, DEFAULT_ORDERED_BASE));
     return clamp(Number.isNaN(parsed) ? DEFAULT_ORDERED_BASE : parsed, 2, 10);
 };
+
+const DEFAULT_BLOCKQUOTE_RADIUS = clamp(parseRadiusValue(defaultTheme.blockquoteBorderRadius, 14), 0, 64);
+
+const sanitizeBlockquoteRadius = (value) =>
+    clamp(parseRadiusValue(value, DEFAULT_BLOCKQUOTE_RADIUS), 0, 64);
 
 const state = {
     theme: cloneTheme(),
@@ -92,6 +103,10 @@ const elements = {
     loadingTemplate: document.getElementById("loading-indicator"),
 };
 
+if (elements.markdown?.placeholder?.includes("\\n")) {
+    elements.markdown.placeholder = elements.markdown.placeholder.replace(/\\n/g, "\n");
+}
+
 const urls = {
     preview: root.dataset.previewUrl,
     pdf: root.dataset.pdfUrl,
@@ -108,6 +123,16 @@ const applyPaletteCollapsedState = (collapsed) => {
         elements.btnTogglePalette.setAttribute("aria-pressed", collapsed ? "true" : "false");
         elements.btnTogglePalette.setAttribute("aria-label", collapsed ? "팔레트 펼치기" : "팔레트 접기");
     }
+};
+
+const applyBlockquoteRadiusToPreview = (radiusValue) => {
+    if (!elements.previewOutput) return;
+    const targetRadius = typeof radiusValue === "number" ? `${radiusValue}px` : radiusValue;
+    if (!targetRadius) return;
+    const blockquotes = elements.previewOutput.querySelectorAll(".document blockquote");
+    blockquotes.forEach((node) => {
+        node.style.borderRadius = targetRadius;
+    });
 };
 
 function addBulletRow(value = "") {
@@ -253,13 +278,18 @@ const setControlInitialValues = () => {
     if (elements.blockquoteBg) elements.blockquoteBg.value = ensureValue(theme.blockquoteBackground, "#eff6ff");
     if (elements.blockquoteBorder) elements.blockquoteBorder.value = ensureValue(theme.blockquoteBorderColor, "#2563eb");
     if (elements.blockquoteRadius) {
-        const radiusValue = ensureValue(theme.blockquoteBorderRadius, defaultTheme.blockquoteBorderRadius ?? "14px");
-        const numeric = parseInt(String(radiusValue).replace(/px/i, ""), 10);
-        elements.blockquoteRadius.value = Number.isFinite(numeric) ? numeric : 14;
+        const applyBlockquoteRadius = (enforceValue = false) => {
+            const sanitized = sanitizeBlockquoteRadius(elements.blockquoteRadius.value);
+            if (enforceValue) {
+                elements.blockquoteRadius.value = sanitized;
+            }
+            state.theme.blockquoteBorderRadius = `${sanitized}px`;
+            schedulePreview({ immediate: true });
+        };
+
+        elements.blockquoteRadius.addEventListener("input", () => applyBlockquoteRadius(false));
+        elements.blockquoteRadius.addEventListener("change", () => applyBlockquoteRadius(true));
     }
-    if (elements.codeBg) elements.codeBg.value = ensureValue(theme.codeBackground, "#0f172a");
-    if (elements.codeText) elements.codeText.value = ensureValue(theme.codeTextColor, "#facc15");
-    if (elements.listStyle && theme.listStyle) elements.listStyle.value = theme.listStyle;
     if (elements.orderedListStyle && theme.orderedListStyle) elements.orderedListStyle.value = theme.orderedListStyle;
     if (elements.pagePadding) {
         const paddingValue = ensureValue(theme.pagePadding, "48px");
@@ -333,13 +363,7 @@ const gatherTheme = () => {
         accentColor: elements.accentColor?.value || defaultTheme.accentColor,
         blockquoteBackground: elements.blockquoteBg?.value || defaultTheme.blockquoteBackground,
         blockquoteBorderColor: elements.blockquoteBorder?.value || defaultTheme.blockquoteBorderColor,
-        blockquoteBorderRadius: (() => {
-            const raw = Number(elements.blockquoteRadius?.value);
-            if (Number.isFinite(raw) && raw >= 0) {
-                return `${raw}px`;
-            }
-            return defaultTheme.blockquoteBorderRadius || "14px";
-        })(),
+        blockquoteBorderRadius: `${sanitizeBlockquoteRadius(elements.blockquoteRadius?.value)}px`,
         blockquoteTextColor: defaultTheme.blockquoteTextColor,
         codeBackground: elements.codeBg?.value || defaultTheme.codeBackground,
         codeTextColor: elements.codeText?.value || defaultTheme.codeTextColor,
@@ -405,7 +429,10 @@ const runPreview = async () => {
         if (serial !== activePreviewSerial) return;
 
         if (elements.previewStyle) elements.previewStyle.textContent = data.css ?? "";
-        if (elements.previewOutput) elements.previewOutput.innerHTML = data.html ?? "";
+        if (elements.previewOutput) {
+            elements.previewOutput.innerHTML = data.html ?? "";
+            applyBlockquoteRadiusToPreview(state.theme.blockquoteBorderRadius);
+        }
         document.title = `${state.theme.title} · Markdown Styler`;
         updateStatus("실시간 반영 완료", "idle");
         state.isPreviewDirty = false;
@@ -426,7 +453,6 @@ const attachControlListeners = () => {
         elements.accentColor,
         elements.blockquoteBg,
         elements.blockquoteBorder,
-    elements.blockquoteRadius,
         elements.codeBg,
         elements.codeText,
         elements.listStyle,
@@ -503,6 +529,21 @@ const attachControlListeners = () => {
         elements.btnTogglePalette.addEventListener("click", () => {
             applyPaletteCollapsedState(!state.isPaletteCollapsed);
         });
+    }
+
+    if (elements.blockquoteRadius) {
+        const applyBlockquoteRadius = (enforceValue = false) => {
+            const sanitized = sanitizeBlockquoteRadius(elements.blockquoteRadius.value);
+            if (enforceValue) {
+                elements.blockquoteRadius.value = sanitized;
+            }
+            state.theme.blockquoteBorderRadius = `${sanitized}px`;
+            applyBlockquoteRadiusToPreview(`${sanitized}px`);
+            schedulePreview({ immediate: true });
+        };
+
+        elements.blockquoteRadius.addEventListener("input", () => applyBlockquoteRadius(false));
+        elements.blockquoteRadius.addEventListener("change", () => applyBlockquoteRadius(true));
     }
 };
 

@@ -159,6 +159,7 @@ body.workspace {
     backdrop-filter: blur(24px);
     max-height: calc(100vh - 140px);
     overflow-y: auto;
+    overflow-x: hidden;
     transition: opacity var(--transition), transform var(--transition), box-shadow var(--transition), padding var(--transition), margin var(--transition), border-color var(--transition);
 }
 
@@ -226,6 +227,39 @@ body.workspace {
     font-size: 14px;
     color: rgba(15, 23, 42, 0.7);
     margin-bottom: 14px;
+}
+
+.palette__color-grid {
+    margin-bottom: 18px;
+    font-size: 0;
+}
+
+.palette__color-grid .palette__field {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    width: calc(25% - 9px);
+    margin: 0 12px 12px 0;
+    font-size: 11px;
+}
+
+.palette__color-grid .palette__field:nth-child(4n) {
+    margin-right: 0;
+}
+
+.palette__color-grid .palette__field span {
+    display: block;
+    line-height: 1.3;
+    white-space: normal;
+}
+
+.palette__color-grid .palette__field input[type="color"] {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 10px;
 }
 
 .toggle__row input[type="number"]:disabled,
@@ -339,37 +373,45 @@ body.workspace {
     border-radius: 4px;
 }
 
+
 .toggle__row {
-    display: grid;
-    grid-template-columns: 80px repeat(2, minmax(96px, 1fr));
-    gap: 10px;
+    display: block;
+    font-size: 0;
+    margin-bottom: 6px;
 }
 
 .toggle__row label {
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
     gap: 4px;
-    font-size: 13px;
+    font-size: 11px;
     color: rgba(15, 23, 42, 0.65);
+    width: calc(33.333% - 8px);
+    margin: 0 12px 8px 0;
+    align-items: center;
+    text-align: center;
+}
+
+.toggle__row label:nth-child(3n) {
+    margin-right: 0;
 }
 
 .toggle__row input[type="number"],
 .toggle__row input[type="text"] {
     border: 1px solid rgba(15, 23, 42, 0.14);
     border-radius: var(--radius-sm);
-    padding: 8px 10px;
-    font-size: 14px;
+    padding: 2px 4px;
+    font-size: 11px;
     background: white;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
 }
 
-.toggle__row input[type="number"] {
-    width: 100%;
-    max-width: 80px;
-}
-
-.toggle__row input[type="text"] {
-    width: 100%;
-    max-width: 120px;
+.toggle__row input[type="number"]::placeholder,
+.toggle__row input[type="text"]::placeholder {
+    font-size: 12px;
 }
 
 .field-help {

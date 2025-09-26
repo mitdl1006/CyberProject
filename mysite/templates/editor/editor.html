@@ -58,43 +58,45 @@
 
                 <div class="palette__section">
                     <h2>색상</h2>
-                    <label class="palette__field">
-                        <span>배경</span>
-                        <input type="color" id="color-background" />
-                    </label>
-                    <label class="palette__field">
-                        <span>본문</span>
-                        <input type="color" id="color-text" />
-                    </label>
-                    <label class="palette__field">
-                        <span>헤딩</span>
-                        <input type="color" id="color-heading" />
-                    </label>
-                    <label class="palette__field">
-                        <span>포인트</span>
-                        <input type="color" id="color-accent" />
-                    </label>
-                    <label class="palette__field">
-                        <span>인용문 배경</span>
-                        <input type="color" id="color-blockquote-bg" />
-                    </label>
-                    <label class="palette__field">
-                        <span>인용문 테두리</span>
-                        <input type="color" id="color-blockquote-border" />
-                    </label>
+                    <div class="palette__color-grid">
+                        <label class="palette__field">
+                            <span>배경</span>
+                            <input type="color" id="color-background" />
+                        </label>
+                        <label class="palette__field">
+                            <span>본문</span>
+                            <input type="color" id="color-text" />
+                        </label>
+                        <label class="palette__field">
+                            <span>헤딩</span>
+                            <input type="color" id="color-heading" />
+                        </label>
+                        <label class="palette__field">
+                            <span>포인트</span>
+                            <input type="color" id="color-accent" />
+                        </label>
+                        <label class="palette__field">
+                            <span>인용문 배경</span>
+                            <input type="color" id="color-blockquote-bg" />
+                        </label>
+                        <label class="palette__field">
+                            <span>인용문 테두리</span>
+                            <input type="color" id="color-blockquote-border" />
+                        </label>
+                        <label class="palette__field">
+                            <span>코드 배경</span>
+                            <input type="color" id="color-code-bg" />
+                        </label>
+                        <label class="palette__field">
+                            <span>코드 텍스트</span>
+                            <input type="color" id="color-code-text" />
+                        </label>
+                    </div>
                     <label class="palette__field">
                         <span>인용문 모서리 (px)</span>
                         <input type="number" id="input-blockquote-radius" min="0" max="64" step="1" />
                     </label>
                     <p class="field-help">0으로 설정하면 각진 모서리, 값이 클수록 둥글게 표현됩니다.</p>
-                    <label class="palette__field">
-                        <span>코드 배경</span>
-                        <input type="color" id="color-code-bg" />
-                    </label>
-                    <label class="palette__field">
-                        <span>코드 텍스트</span>
-                        <input type="color" id="color-code-text" />
-                    </label>
                 </div>
 
                 <div class="palette__section">
@@ -183,7 +185,7 @@
                 <h2>마크다운 문서</h2>
                 <span class="tag">실시간 프리뷰</span>
             </div>
-            <textarea id="markdown-input" spellcheck="false" placeholder="# 환영합니다!\n\n- 팔레트를 이용해 디자인을 조정하세요.\n- 미리보기 영역이 자동으로 반영됩니다.\n- PDF 다운로드 버튼으로 출력하세요.\n\n> 마크다운 + 커스텀 스타일로 깔끔한 문서를 만들어보세요!\n\n\`\`\`python\nprint('Code blocks도 지원합니다!')\n\`\`\`\n"></textarea>
+            <textarea id="markdown-input" spellcheck="false"></textarea>
         </section>
 
         <section class="preview" aria-label="라이브 미리보기">
