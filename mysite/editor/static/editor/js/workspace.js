@@ -62,6 +62,7 @@ const elements = {
     accentColor: document.getElementById("color-accent"),
     blockquoteBg: document.getElementById("color-blockquote-bg"),
     blockquoteBorder: document.getElementById("color-blockquote-border"),
+    blockquoteRadius: document.getElementById("select-blockquote-radius"),
     codeBg: document.getElementById("color-code-bg"),
     codeText: document.getElementById("color-code-text"),
     listStyle: document.getElementById("select-list"),
@@ -251,6 +252,11 @@ const setControlInitialValues = () => {
     if (elements.accentColor) elements.accentColor.value = ensureValue(theme.accentColor, "#2563eb");
     if (elements.blockquoteBg) elements.blockquoteBg.value = ensureValue(theme.blockquoteBackground, "#eff6ff");
     if (elements.blockquoteBorder) elements.blockquoteBorder.value = ensureValue(theme.blockquoteBorderColor, "#2563eb");
+    if (elements.blockquoteRadius) {
+        const radiusValue = ensureValue(theme.blockquoteBorderRadius, defaultTheme.blockquoteBorderRadius ?? "14px");
+        const normalized = `${radiusValue}`.endsWith("px") ? `${radiusValue}` : `${radiusValue}px`;
+        elements.blockquoteRadius.value = normalized;
+    }
     if (elements.codeBg) elements.codeBg.value = ensureValue(theme.codeBackground, "#0f172a");
     if (elements.codeText) elements.codeText.value = ensureValue(theme.codeTextColor, "#facc15");
     if (elements.listStyle && theme.listStyle) elements.listStyle.value = theme.listStyle;
@@ -327,6 +333,7 @@ const gatherTheme = () => {
         accentColor: elements.accentColor?.value || defaultTheme.accentColor,
         blockquoteBackground: elements.blockquoteBg?.value || defaultTheme.blockquoteBackground,
         blockquoteBorderColor: elements.blockquoteBorder?.value || defaultTheme.blockquoteBorderColor,
+    blockquoteBorderRadius: elements.blockquoteRadius?.value || defaultTheme.blockquoteBorderRadius || "14px",
         blockquoteTextColor: defaultTheme.blockquoteTextColor,
         codeBackground: elements.codeBg?.value || defaultTheme.codeBackground,
         codeTextColor: elements.codeText?.value || defaultTheme.codeTextColor,
@@ -413,6 +420,7 @@ const attachControlListeners = () => {
         elements.accentColor,
         elements.blockquoteBg,
         elements.blockquoteBorder,
+    elements.blockquoteRadius,
         elements.codeBg,
         elements.codeText,
         elements.listStyle,

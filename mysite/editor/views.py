@@ -30,6 +30,7 @@ THEME_DEFAULTS: dict[str, Any] = {
     "blockquoteBackground": "#eff6ff",
     "blockquoteBorderColor": "#2563eb",
     "blockquoteTextColor": "#1f2937",
+    "blockquoteBorderRadius": "14px",
     "codeBackground": "#0f172a",
     "codeTextColor": "#facc15",
     "listStyle": "disc",
@@ -246,6 +247,9 @@ def merge_theme(user_theme: dict[str, Any] | None) -> dict[str, Any]:
         elif key == "pagePadding":
             padding = str(value) if value is not None else result[key]
             result[key] = padding if padding.endswith("px") else f"{padding}px"
+        elif key == "blockquoteBorderRadius":
+            radius = str(value) if value is not None else result[key]
+            result[key] = radius if radius.endswith("px") else f"{radius}px"
         else:
             result[key] = value if value is not None else result.get(key)
 
@@ -355,7 +359,7 @@ def build_theme_css(theme: dict[str, Any]) -> str:
             background: {theme["blockquoteBackground"]};
             border-left: 4px solid {theme["blockquoteBorderColor"]};
             color: {theme["blockquoteTextColor"]};
-            border-radius: 14px;
+            border-radius: {theme["blockquoteBorderRadius"]};
         }}
         .document code {{
             background: {theme["codeBackground"]};
