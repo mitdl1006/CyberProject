@@ -24,10 +24,14 @@
 uv sync
 
 # 데이터베이스 초기화 (필요 시)
-uv run python manage.py migrate
+uv run manage.py migrate
 
-# 개발 서버 실행
-uv run python manage.py runserver 0.0.0.0:8000
+# 개발 서버 실행 (루트에서 main.py 실행)
+uv run main.py
+
+# 또는 manage.py를 직접 사용하고 싶다면
+cd mysite
+uv run manage.py runserver 0.0.0.0:8000
 ```
 
 ## 사용 가이드
@@ -41,7 +45,7 @@ uv run python manage.py runserver 0.0.0.0:8000
 ## 테스트
 
 ```pwsh
-uv run python manage.py test editor
+uv run manage.py test editor
 ```
 
 ## 라이선스
